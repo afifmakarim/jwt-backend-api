@@ -1,9 +1,9 @@
 const db = require("../models");
-const { user: User, role: Role, refreshToken: RefreshToken } = db;
+const { Role, RefreshToken, User } = require("../models/associations");
 
 const config = require("../config/auth.config");
 
-const Op = db.Sequelize.Op;
+const { Op } = require("sequelize");
 
 var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
@@ -31,7 +31,8 @@ const signup = async (req, res) => {
       res.send({ message: "User was registered successfully!" });
     }
   } catch (error) {
-    res.status(500).send({ message: err.message });
+    console.log(error);
+    res.status(500).send({ message: error.message });
   }
 };
 
@@ -78,6 +79,7 @@ const signin = async (req, res) => {
       refreshToken: refreshToken,
     });
   } catch (err) {
+    console.log(err);
     res.status(500).send({ message: err.message });
   }
 };

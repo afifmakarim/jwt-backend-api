@@ -14,7 +14,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 app.use("/", indexRouter);
-app.use("/cms-api/v1/contents", usersRouter);
-app.use("/cms-api/v1/auth", authRouter);
+app.use("/cms/api/v1/contents", usersRouter);
+app.use("/cms/api/v1/auth", authRouter);
 
 module.exports = app;

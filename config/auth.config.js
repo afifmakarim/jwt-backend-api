@@ -1,6 +1,6 @@
 module.exports = {
   TOKEN_KEY: "secret",
-  jwtExpiration: 15, // 1 hour
+  jwtExpiration: 86400, // 1 hour
   jwtRefreshExpiration: 60, // 24 hours
 
   /* for test */

@@ -1,13 +1,20 @@
-module.exports = (sequelize, Sequelize) => {
-  const Role = sequelize.define("roles", {
+const { sequelize } = require("../config/db.config");
+const { DataTypes } = require("sequelize");
+
+const Role = sequelize.define(
+  "roles",
+  {
     id: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       primaryKey: true,
     },
     name: {
-      type: Sequelize.STRING,
+      type: DataTypes.STRING,
     },
-  });
+  },
+  {
+    tableName: "roles",
+  }
+);
 
-  return Role;
-};
+module.exports = Role;

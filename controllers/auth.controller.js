@@ -1,12 +1,9 @@
-const db = require("../models");
+const { log_error, log_info } = require("../utils/logger");
 const { Role, RefreshToken, User } = require("../models/associations");
-
 const config = require("../config/auth.config");
-
 const { Op } = require("sequelize");
-
-var jwt = require("jsonwebtoken");
-var bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
 
 const signup = async (req, res) => {
   try {
@@ -25,13 +22,19 @@ const signup = async (req, res) => {
         },
       });
       await user.setRoles(roles);
-      res.send({ message: "User was registered successfully!" });
+      const response = { message: "User was registered successfully!" };
+
+      log_info(req.method, response);
+      res.send(response);
     } else {
       await user.setRoles([1]);
-      res.send({ message: "User was registered successfully!" });
+      const response = { message: "User was registered successfully!" };
+
+      log_info(req.method, response);
+      res.send(response);
     }
   } catch (error) {
-    console.log(error);
+    log_error(req.method, error.message);
     res.status(500).send({ message: error.message });
   }
 };
@@ -45,7 +48,9 @@ const signin = async (req, res) => {
     });
 
     if (!user) {
-      return res.status(404).send({ message: "User Not found." });
+      const response = { message: "User Not found." };
+      log_error(req.method, response);
+      return res.status(404).send(response);
     }
 
     const passwordIsValid = bcrypt.compareSync(
@@ -53,10 +58,12 @@ const signin = async (req, res) => {
       user.password
     );
     if (!passwordIsValid) {
-      return res.status(401).send({
+      const response = {
         accessToken: null,
         message: "Invalid Password!",
-      });
+      };
+      log_error(req.method, response);
+      return res.status(401).send(response);
     }
 
     const token = jwt.sign({ id: user.id }, config.TOKEN_KEY, {
@@ -70,16 +77,18 @@ const signin = async (req, res) => {
     for (let i = 0; i < roles.length; i++) {
       authorities.push("ROLE_" + roles[i].name.toUpperCase());
     }
-    res.status(200).send({
+    const response = {
       id: user.id,
       username: user.username,
       email: user.email,
       roles: authorities,
       accessToken: token,
       refreshToken: refreshToken,
-    });
+    };
+    log_info(req.method, response);
+    res.status(200).send(response);
   } catch (err) {
-    console.log(err);
+    log_error(req.method, err.message);
     res.status(500).send({ message: err.message });
   }
 };
@@ -88,7 +97,9 @@ const refreshToken = async (req, res) => {
   const { refreshToken: requestToken } = req.body;
 
   if (requestToken == null) {
-    return res.status(403).json({ message: "Refresh Token is required!" });
+    const response = { message: "Refresh Token is required!" };
+    log_error(req.method, response);
+    return res.status(403).json(response);
   }
 
   try {
@@ -99,16 +110,19 @@ const refreshToken = async (req, res) => {
     console.log(refreshToken);
 
     if (!refreshToken) {
-      res.status(403).json({ message: "Refresh token is not in database!" });
+      const response = { message: "Refresh token is not in database!" };
+      log_error(req.method, response);
+      res.status(403).json();
       return;
     }
 
     if (RefreshToken.verifyExpiration(refreshToken)) {
       RefreshToken.destroy({ where: { id: refreshToken.id } });
-
-      res.status(403).json({
+      const response = {
         message: "Refresh token was expired. Please make a new signin request",
-      });
+      };
+      log_error(req.method, response);
+      res.status(403).json(response);
       return;
     }
 
@@ -116,12 +130,14 @@ const refreshToken = async (req, res) => {
     let newAccessToken = jwt.sign({ id: user.id }, config.TOKEN_KEY, {
       expiresIn: config.jwtExpiration,
     });
-
-    return res.status(200).json({
+    const response = {
       accessToken: newAccessToken,
       refreshToken: refreshToken.token,
-    });
+    };
+    log_info(req.method, response);
+    return res.status(200).json(response);
   } catch (err) {
+    log_error(req.method, err.message);
     return res.status(500).send({ message: err });
   }
 };

@@ -4,21 +4,25 @@ const config = require("../config/auth.config");
 
 const { TokenExpiredError } = jwt;
 
-const catchError = (err, res) => {
+const catchError = (err, res, req) => {
   if (err instanceof TokenExpiredError) {
-    return res
-      .status(401)
-      .send({ message: "Unauthorized! Access Token was expired!" });
+    const response = { message: "Unauthorized! Access Token was expired!" };
+    log_error(req.method, response);
+    return res.status(401).send(response);
   }
 
-  return res.sendStatus(401).send({ message: "Unauthorized!" });
+  const response = { message: "Unauthorized!" };
+  log_error(req.method, response);
+  return res.sendStatus(401).send(response);
 };
 
 const verifyToken = (req, res, next) => {
   let token = req.headers["x-access-token"];
 
   if (!token) {
-    return res.status(403).send({ message: "No token provided!" });
+    const response = { message: "No token provided!" };
+    log_error(req.method, response);
+    return res.status(403).send(response);
   }
 
   jwt.verify(token, config.TOKEN_KEY, (err, decoded) => {
@@ -40,11 +44,14 @@ const isAdmin = async (req, res, next) => {
         return;
       }
     }
-    res.status(403).send({
+    const response = {
       message: "Require Admin Role!",
-    });
+    };
+    log_error(req.method, response);
+    res.status(403).send(response);
     return;
   } catch (error) {
+    log_error(req.method, error.message);
     console.log(`error ${error}`);
   }
 };
@@ -59,10 +66,13 @@ const isModerator = async (req, res, next) => {
         return;
       }
     }
-    res.status(403).send({
+    const response = {
       message: "Require Moderator Role!",
-    });
+    };
+    log_error(req.method, response);
+    res.status(403).send(response);
   } catch (error) {
+    log_error(req.method, error.message);
     console.log(`error ${error}`);
   }
 };
@@ -82,6 +92,7 @@ const isModeratorOrAdmin = async (req, res, next) => {
       }
     }
   } catch (error) {
+    log_error(req.method, error.message);
     console.log(`error ${error}`);
   }
 };

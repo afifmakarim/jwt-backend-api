@@ -1,6 +1,7 @@
 const Role = require("./role.model");
 const RefreshToken = require("./refreshToken.model");
 const User = require("./user.model");
+const Products = require("./product.model");
 
 User.hasOne(RefreshToken, {
   foreignKey: "userId",
@@ -26,4 +27,4 @@ Role.belongsToMany(User, {
 
 const ROLES = ["user", "admin", "moderator"];
 
-module.exports = { Role, RefreshToken, User, ROLES };
+module.exports = { Role, RefreshToken, User, Products, ROLES };

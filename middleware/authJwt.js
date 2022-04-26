@@ -14,8 +14,8 @@ const catchError = (err, res, req) => {
   }
 
   const response = { message: "Unauthorized!" };
-  log_error(req.method, response);
-  return res.sendStatus(401).send(response);
+  log_error("ERROR :", response);
+  return res.status(401).send(response);
 };
 
 const verifyToken = (req, res, next) => {

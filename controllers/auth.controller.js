@@ -57,6 +57,7 @@ const signin = async (req, res) => {
       req.body.password,
       user.password
     );
+
     if (!passwordIsValid) {
       const response = {
         accessToken: null,
